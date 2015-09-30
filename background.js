@@ -1,29 +1,20 @@
-// Called when the user clicks on the browser action.
-chrome.browserAction.onClicked.addListener(function(tab) {
-  // No tabs or host permissions needed!
-  openStorePageTab();
-});
+var notificationId = 0;
+var sixComingSoonCount;
+var timeout = 30000;
 
-function openStorePageTab() {
-  var createProperties = { url: "https://store.google.com/product/nexus_6p" }
-  chrome.tabs.create(createProperties, function(tab) {});
-}
+function storeAndCompare(response) {
+  // Just count how many times the "data-available" element is set to false
+  var comingSoonCount = occurrences(response, "data-available=\"false\"");
+  chrome.browserAction.setBadgeText({text: comingSoonCount.toString() });
 
-// Loads an url
-function loadUrl(url, callback) {
-  var x = new XMLHttpRequest();
-  x.onload = function() {
-      callback(x.responseText);
-  };
-  x.open('GET', url);
-  x.send();
-}
+  if (sixComingSoonCount != null) {
+    if (comingSoonCount < sixComingSoonCount) {
+      // Notify user that something changed!
+      showNotification();
+    }
+  }
 
-function refreshContent() {
-  console.log("Refresh");
-  loadUrl('https://store.google.com/product/nexus_6p', function(response) {
-    storeAndCompare(response);
-  });
+  sixComingSoonCount = comingSoonCount;
 }
 
 /** Function count the occurrences of substring in a string;
@@ -47,37 +38,56 @@ function occurrences(string, subString, allowOverlapping){
     return n;
 }
 
-function showNotification() {
+
+// Called when the user clicks on the browser action.
+chrome.browserAction.onClicked.addListener(function(tab) {
+  // No tabs or host permissions needed!
+  openStorePageTab();
+});
+
+// Loads an url
+function loadUrl(url, callback) {
+  var x = new XMLHttpRequest();
+  x.onload = function() {
+      callback(x.responseText);
+  };
+
+  x.open('GET', url);
+  x.send();
+}
+
+function showStartNotification() {
+  showNotification("Checking the Google Store for you", "Refreshing the 6P site every " + timeout/1000 + " seconds");
+}
+
+function showUpdateNotification() {
+  showNotification("Something has changed!", "The Nexus 6P might be available now!");
+}
+
+function showNotification(title, message) {
   var opt = {
    type: "basic",
-   title: "Something has changed",
-   message: "Go check it out!",
+   title: title,
+   message: message,
    iconUrl: "icon.png"
   };
   var id = notificationId++;
   chrome.notifications.create(id.toString(), opt, function(id) {});
 }
 
-function storeAndCompare(response) {
-  var comingSoonCount = occurrences(response, "Coming soon");
-
-  if (sixComingSoonCount != null) {
-    if (comingSoonCount < sixComingSoonCount) {
-      // Notify user that something changed!
-      showNotification();
-    }
-  }
-
-  sixComingSoonCount = comingSoonCount;
+function openStorePageTab() {
+  var createProperties = { url: "https://store.google.com/product/nexus_6p" }
+  chrome.tabs.create(createProperties, function(tab) {});
 }
 
-var notificationId = 0;
-var sixComingSoonCount;
-var second;
-var timeout = 30000;
+function refreshContent() {
+  console.log("Refresh");
+  loadUrl('https://store.google.com/product/nexus_6p', function(response) {
+    storeAndCompare(response);
+  });
+}
 
 // Background loop
-// TODO Actually loop!
 function loop(delay) {
   setInterval(function() {
     refreshContent();
@@ -87,4 +97,4 @@ function loop(delay) {
 // Refresh at start, then loop
 refreshContent();
 loop(timeout);
-showNotification();
+showStartNotification();

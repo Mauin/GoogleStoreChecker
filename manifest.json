@@ -7,7 +7,9 @@
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "background": {
-      "scripts": ["background.js"],
+      "scripts": [
+        "background.js"
+      ],
       "persistent": false
     },
   "browser_action": {
@@ -16,6 +18,6 @@
   "permissions": [
     "activeTab",
     "notifications",
-    "https://store.google.com/product/nexus_6p"
+    "https://store.google.com/"
   ]
 }
