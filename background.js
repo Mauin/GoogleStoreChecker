@@ -2,6 +2,17 @@ var notificationId = 0;
 var sixComingSoonCount;
 var timeout = 30000;
 
+
+// Called when the user clicks on the browser action.
+chrome.browserAction.onClicked.addListener(function(tab) {
+  // No tabs or host permissions needed!
+  openStorePageTab();
+});
+
+chrome.notifications.onClicked.addListener(function(id) {
+  openStorePageTab();
+});
+
 function storeAndCompare(response) {
   // Just count how many times the "data-available" element is set to false
   var comingSoonCount = occurrences(response, "data-available=\"false\"");
@@ -37,13 +48,6 @@ function occurrences(string, subString, allowOverlapping){
     }
     return n;
 }
-
-
-// Called when the user clicks on the browser action.
-chrome.browserAction.onClicked.addListener(function(tab) {
-  // No tabs or host permissions needed!
-  openStorePageTab();
-});
 
 // Loads an url
 function loadUrl(url, callback) {
