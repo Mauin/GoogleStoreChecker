@@ -6,14 +6,14 @@
   "version": "0.1",
 
   "browser_action": {
-    "default_icon": "icon.png"
+    "default_icon": "res/icon.png"
   },
   "background": {
     "scripts": [
-      "jquery.js",
-      "http.js",
-      "notification.js",
-      "storage.js",
+      "lib/jquery.js",
+      "src/http.js",
+      "src/notification.js",
+      "src/storage.js",
       "background.js"
     ]
   },
