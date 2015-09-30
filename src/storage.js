@@ -2,8 +2,6 @@ var cached = 0;
 
 function processResponse(response, callback) {
   var models = getModelsFromResponse(response);
-  console.log(models.length)
-
   var available = checkAvailability(models);
   console.log(available + " out of " + models.length + " models available");
 

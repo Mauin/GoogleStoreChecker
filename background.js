@@ -15,7 +15,6 @@ function openStorePageTab() {
 }
 
 function refreshContent() {
-  console.log("Refresh");
   loadUrl('https://store.google.com/product/nexus_6p', function(response) {
     processResponse(response, setBadge);
   });
@@ -33,9 +32,7 @@ function setBadge(count) {
 
 // Background loop
 function loop(delay) {
-  setInterval(function() {
-    refreshContent();
-  }, delay);
+  setInterval(refreshContent, delay);
 }
 
 // Start here. Begin loop!
