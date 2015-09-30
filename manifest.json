@@ -3,17 +3,19 @@
 
   "name": "Google Store Nexus Refresher",
   "description": "Extension that automatically refreshes the Nexus 5X/6P store pages to check for updates (e.g. it's available)",
-  "version": "1.0",
+  "version": "0.1",
 
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-  "background": {
-      "scripts": [
-        "background.js"
-      ],
-      "persistent": false
-    },
   "browser_action": {
     "default_icon": "icon.png"
+  },
+  "background": {
+    "scripts": [
+      "jquery.js",
+      "http.js",
+      "notification.js",
+      "storage.js",
+      "background.js"
+    ]
   },
   "permissions": [
     "activeTab",
