@@ -3,7 +3,7 @@
 
   "name": "Google Store Availablility Checker",
   "description": "Extension that automatically refreshes a Google Store store pages to check for availability updates (e.g. it's available)",
-  "version": "0.1",
+  "version": "0.1.1",
 
   "icons": {
     "16": "res/icon_16.png",
