@@ -11,7 +11,8 @@
     "128": "res/icon_128.png"
   },
   "browser_action": {
-    "default_icon": "res/icon_128.png"
+    "default_icon": "res/icon_128.png",
+    "default_popup": "popup/popup.html"
   },
   "background": {
     "scripts": [
