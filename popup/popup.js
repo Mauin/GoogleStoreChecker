@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
   chrome.extension.sendMessage({}, function(response) {
     console.log(response);
     showCheckboxes(response.products);
@@ -7,21 +6,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showCheckboxes(products) {
-    var status = document.getElementById('status');
+    var box = document.getElementById('productBox');
 
     for (var product in products) {
       var pair = products[product];
       var checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = pair;
+      checkbox.type = "radio";
+      checkbox.name = "product";
       checkbox.value = pair;
-      status.appendChild(checkbox);
+      box.appendChild(checkbox);
 
       var label = document.createElement('label')
       label.htmlFor = pair;
       label.appendChild(document.createTextNode(pair));
 
-      status.appendChild(label);
-      status.appendChild(document.createElement("br"));
+      box.appendChild(label);
+      box.appendChild(document.createElement("br"));
     }
+
+
 }
