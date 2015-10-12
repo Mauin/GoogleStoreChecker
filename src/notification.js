@@ -13,7 +13,7 @@ function showNotification(title, message) {
    type: "basic",
    title: title,
    message: message,
-   iconUrl: "res/icon.png"
+   iconUrl: "res/icon_128.png"
   };
   var id = notificationId++;
   chrome.notifications.create(id.toString(), opt, function(id) {});
