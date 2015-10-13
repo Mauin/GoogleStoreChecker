@@ -1,13 +1,13 @@
 var productSubUrl = "/product";
 
 document.addEventListener('DOMContentLoaded', function() {
-  chrome.extension.sendMessage({}, function(response) {
+  chrome.extension.sendMessage({products: true}, function(response) {
     generateForm(response.products);
   });
 });
 
 function save() {
-  var selected = document.querySelector('input[name="rate"]:checked').value;
+  var selected = document.querySelector('input[name="product"]:checked').value;
   console.log(selected);
   chrome.extension.sendMessage({
     product: selected
