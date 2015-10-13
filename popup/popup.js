@@ -1,28 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
   chrome.extension.sendMessage({}, function(response) {
-    console.log(response);
-    showCheckboxes(response.products);
- });
+    generateForm(response.products);
+  });
 });
 
-function showCheckboxes(products) {
-    var box = document.getElementById('productBox');
+function save() {
+  var selected = document.querySelector('input[name="rate"]:checked').value;
+  console.log(selected);
+  chrome.extension.sendMessage({
+    product: selected
+  }, function(response) {});
+}
 
-    for (var product in products) {
-      var pair = products[product];
-      var checkbox = document.createElement("input");
-      checkbox.type = "radio";
-      checkbox.name = "product";
-      checkbox.value = pair;
-      box.appendChild(checkbox);
+function generateForm(products) {
+  var box = document.getElementById('productBox');
 
-      var label = document.createElement('label')
-      label.htmlFor = pair;
-      label.appendChild(document.createTextNode(pair));
+  for (var product in products) {
+    var pair = products[product];
+    var checkbox = document.createElement("input");
+    checkbox.type = "radio";
+    checkbox.name = "product";
+    checkbox.value = pair;
+    box.appendChild(checkbox);
 
-      box.appendChild(label);
-      box.appendChild(document.createElement("br"));
-    }
+    var label = document.createElement('label')
+    label.htmlFor = pair;
+    label.appendChild(document.createTextNode(pair));
 
-
+    box.appendChild(label);
+    box.appendChild(document.createElement("br"));
+  }
+  document.getElementById("saveButton").addEventListener('click', save);
 }
