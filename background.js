@@ -10,6 +10,7 @@ var productString = "product"
 var products = new Set();
 var categories = new Set();
 
+var targetName = "nexus_6p"
 var targetProduct = "/product/nexus_6p";
 var targetUrl = "https://store.google.com/product/nexus_6p";
 
@@ -29,13 +30,12 @@ chrome.runtime.onMessage.addListener(
       selectProduct(productUrl);
       restartLoop();
     }
-
-
   });
 
 function selectProduct(productUrl) {
   targetProduct = productUrl;
   targetUrl = storeUrl + productUrl;
+  targetName = productUrl.replace("/product/", '');
 }
 
 chrome.notifications.onClicked.addListener(function(id) {
@@ -51,7 +51,7 @@ function openStorePageTab() {
 
 function refreshContent() {
   loadUrl(targetUrl, function(response) {
-    processResponse(response, setBadge);
+    processResponse(targetName, response, setBadge);
   });
 }
 
@@ -124,12 +124,13 @@ function restartLoop() {
   if (intervalLoop) {
     clearInterval(intervalLoop);
     intervalLoop = false;
+    resetCache();
   }
 
   refreshContent();
   loop(timeout);
 
-  showStartNotification();
+  showStartNotification(targetName);
 }
 
 restartLoop();

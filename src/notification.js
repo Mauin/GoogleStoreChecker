@@ -1,11 +1,11 @@
 var notificationId = 0;
 
-function showStartNotification() {
-  showNotification("Checking the Google Store for you", "Refreshing the 6P site every " + timeout/1000 + " seconds");
+function showStartNotification(product) {
+  showNotification("Looking for the " + product + " for you", "Checking for changes every " + timeout/1000 + " seconds");
 }
 
-function showUpdateNotification() {
-  showNotification("Something has changed!", "The Nexus 6P might be available now!");
+function showUpdateNotification(product) {
+  showNotification(product + " availability has changed!", "Click here to see the Google Store product page");
 }
 
 function showNotification(title, message) {

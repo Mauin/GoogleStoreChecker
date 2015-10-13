@@ -1,14 +1,18 @@
 var cached = 0;
 
-function processResponse(response, callback) {
+function resetCache() {
+  cache = 0;
+}
+
+function processResponse(product, response, callback) {
   var models = getModelsFromResponse(response);
   var available = checkAvailability(models);
-  console.log(available + " out of " + models.length + " models available");
+  console.log(product + " - " + available + " out of " + models.length + " models available");
 
   // Compare to last value
   if (available != cached) {
     // Show notification on value change
-    showUpdateNotification();
+    showUpdateNotification(product);
   }
   // Store new value
   cached = available;

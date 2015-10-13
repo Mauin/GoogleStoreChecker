@@ -1,4 +1,4 @@
-var productSubUrl = "/product";
+var productSubUrl = "/product/";
 
 document.addEventListener('DOMContentLoaded', function() {
   chrome.extension.sendMessage({products: true}, function(response) {
