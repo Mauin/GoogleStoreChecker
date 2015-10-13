@@ -1,3 +1,5 @@
+var productSubUrl = "/product";
+
 document.addEventListener('DOMContentLoaded', function() {
   chrome.extension.sendMessage({}, function(response) {
     generateForm(response.products);
@@ -16,16 +18,18 @@ function generateForm(products) {
   var box = document.getElementById('productBox');
 
   for (var product in products) {
-    var pair = products[product];
+    var productUrl = products[product];
+    var name = productUrl.replace(productSubUrl, '');
+
     var checkbox = document.createElement("input");
     checkbox.type = "radio";
     checkbox.name = "product";
-    checkbox.value = pair;
+    checkbox.value = productUrl;
     box.appendChild(checkbox);
 
     var label = document.createElement('label')
-    label.htmlFor = pair;
-    label.appendChild(document.createTextNode(pair));
+    label.htmlFor = name;
+    label.appendChild(document.createTextNode(name));
 
     box.appendChild(label);
     box.appendChild(document.createElement("br"));
