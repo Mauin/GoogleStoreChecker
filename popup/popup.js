@@ -2,23 +2,25 @@ var productSubUrl = "/product/";
 var products = "";
 
 document.addEventListener('DOMContentLoaded', function() {
-  chrome.extension.sendMessage({products: true}, function(response) {
+  chrome.extension.sendMessage({
+    products: true
+  }, function(response) {
+    selectedProductName = response.selected.name;
     products = response.products;
-    generateForm(products);
+    generateForm(products, selectedProductName);
   });
 });
 
 function save() {
   var selected = document.querySelector('input[name="product"]:checked').value;
 
-  var selectedProduct = findInProducts(products, selected);
-  console.log(selected);
+  var selectedProduct = findNameInProducts(products, selected);
   chrome.extension.sendMessage({
     product: selectedProduct
   }, function(response) {});
 }
 
-function findInProducts(products, selected) {
+function findNameInProducts(products, selected) {
   for (var product in products) {
     var currentProduct = products[product];
 
@@ -27,8 +29,8 @@ function findInProducts(products, selected) {
     }
   }
 }
-// TODO clear form first
-function generateForm(products) {
+
+function generateForm(products, selectedProductName) {
   var box = document.getElementById('productBox');
 
   for (var product in products) {
@@ -38,6 +40,9 @@ function generateForm(products) {
     checkbox.type = "radio";
     checkbox.name = "product";
     checkbox.value = currentProduct.name;
+    if (selectedProductName === currentProduct.name) {
+      checkbox.checked = true;
+    }
     box.appendChild(checkbox);
 
     var label = document.createElement('label')

@@ -26,7 +26,8 @@ chrome.runtime.onMessage.addListener(
     if (request.products) {
       // List of Products requested
       sendResponse({
-        products: Array.from(products)
+        products: Array.from(products),
+        selected: targetProduct
       });
     } else if (request.product) {
       // Product selection broadcast
@@ -82,17 +83,16 @@ function getDevices() {
     var domCategories = dom.find('a.block-link');
 
     for (var i = 0; i < domCategories.length; i++) {
-      // TODO rename, it's actually path, not name!
-      var name = domCategories[i].pathname;
-      if (name === undefined) {
+      var path = domCategories[i].pathname;
+      if (path === undefined) {
         break;
       }
 
-      if (name.includes(productString)) {
-        var path = domCategories[i].dataset.title;
-        products.add(createProduct(path, name));
-      } else if (name.includes(categoryString)) {
-        categories.add(name);
+      if (path.includes(productString)) {
+        var name = domCategories[i].dataset.title;
+        products.add(createProduct(name, path));
+      } else if (path.includes(categoryString)) {
+        categories.add(path);
       }
     }
     var catArray = Array.from(categories);
