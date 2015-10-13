@@ -1,4 +1,5 @@
 var timeout = 30000;
+var productRefreshInterval = 86400000;
 var colorGreen = "#00C400";
 var colorRed = "#F20000";
 
@@ -7,6 +8,7 @@ var storeUrl = "https://store.google.com"
 var categoryString = "category";
 var productString = "product"
 
+var lastProductSyncTimestamp = "";
 var products = new Set();
 var categories = new Set();
 
@@ -25,14 +27,19 @@ chrome.runtime.onMessage.addListener(
 
     if (request.products) {
       // List of Products requested
+      console.log(products);
       sendResponse({
         products: Array.from(products),
         selected: targetProduct
       });
     } else if (request.product) {
       // Product selection broadcast
-      targetProduct = request.product;
-      console.log(targetProduct);
+      setTargetProduct(request.product);
+
+      chrome.storage.sync.set({
+        selected: targetProduct
+      });
+
       restartLoop();
     }
   }
@@ -42,6 +49,10 @@ chrome.notifications.onClicked.addListener(function(id) {
   openStorePageTab();
 });
 
+function setTargetProduct(product) {
+  targetProduct = product;
+}
+
 function openStorePageTab() {
   var createProperties = {
     url: targetUrl
@@ -50,33 +61,37 @@ function openStorePageTab() {
 }
 
 function refreshContent() {
-  console.log("refresh");
-  console.log(targetProduct);
   loadUrl(targetProduct.url, function(response) {
     processResponse(targetProduct, response, setBadge);
   });
 }
 
 function setBadge(count) {
+  chrome.browserAction.setBadgeText({
+    text: count.toString()
+  });
   if (count > 0) {
-    chrome.browserAction.setBadgeText({
-      text: count.toString()
-    });
     chrome.browserAction.setBadgeBackgroundColor({
       color: colorGreen
     });
   } else {
-    chrome.browserAction.setBadgeText({
-      text: ":("
-    });
     chrome.browserAction.setBadgeBackgroundColor({
       color: colorRed
     });
   }
 }
 
+function setAndSyncTimeStamp() {
+  lastProductSyncTimestamp = Date.now();
+  chrome.storage.sync.set({
+    syncTimestamp: lastProductSyncTimestamp
+  });
+}
+
 // TODO refactor and extract
 function getDevices() {
+  setAndSyncTimeStamp();
+
   loadUrl(storeUrl, function(response) {
     // Parse DOM
     var dom = jQuery('<div/>').html(response).contents();
@@ -110,6 +125,13 @@ function getDevices() {
           if (path.includes(productString)) {
             products.add(createProduct(name, path));
           }
+
+          // We're done here
+          if (i == catArray.length && j == devices.length) {
+            chrome.storage.sync.set({
+              products: Array.from(products)
+            });
+          }
         }
       });
     }
@@ -124,6 +146,14 @@ function createProduct(name, path) {
   return product;
 }
 
+function checkForDeviceUpdate() {
+  var now = Date.now();
+  if (now - lastProductSyncTimestamp > productRefreshInterval) {
+    console.log("refreshing devices");
+    getDevices();
+  }
+}
+
 // Background loop
 function loop(delay) {
   intervalLoop = setInterval(refreshContent, delay);
@@ -136,12 +166,41 @@ function restartLoop() {
     resetCache();
   }
 
+  checkForDeviceUpdate();
   refreshContent();
   loop(timeout);
 
   showStartNotification(targetProduct);
 }
 
-getDevices();
-targetProduct = createProduct("Nexus 6P", "/product/nexus_6p");
-restartLoop();
+
+function main() {
+  chrome.storage.sync.get("syncTimestamp", function(timestamp) {
+    if (timestamp.syncTimestamp != undefined) {
+      lastProductSyncTimestamp = timestamp.syncTimestamp;
+    }
+
+    chrome.storage.sync.get("products", function(storedProducts) {
+      if (storedProducts.products != undefined && storedProducts.products.length > 0) {
+        console.log("array from " + storedProducts.products);
+        products = new Set(storedProducts.products);
+      } else {
+        getDevices();
+      }
+
+      chrome.storage.sync.get("selected", function(selectedProduct) {
+        if (selectedProduct.selected) {
+          setTargetProduct(selectedProduct.selected);
+        } else {
+          // TODO select a smarter default
+          setTargetProduct(createProduct("Nexus 6P", "/product/nexus_6p"));
+        }
+
+        restartLoop();
+      });
+    });
+  });
+}
+
+// Call main method
+main();

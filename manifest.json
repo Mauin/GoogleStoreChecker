@@ -26,6 +26,7 @@
   "permissions": [
     "activeTab",
     "notifications",
+    "storage",
     "https://store.google.com/"
   ]
 }
