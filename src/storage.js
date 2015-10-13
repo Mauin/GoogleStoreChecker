@@ -7,10 +7,10 @@ function resetCache() {
 function processResponse(product, response, callback) {
   var models = getModelsFromResponse(response);
   var available = checkAvailability(models);
-  console.log(product + " - " + available + " out of " + models.length + " models available");
+  console.log(product.name + " - " + available + " out of " + models.length + " models available");
 
   notificationHandling(product, cached, available);
-  
+
   // Store new value
   cached = available;
 

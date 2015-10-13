@@ -18,23 +18,23 @@ function notificationHandling(product, last, now) {
 }
 
 function showStartNotification(product) {
-  showNotification("Looking for the " + product + " for you", "Checking for changes every " + timeout/1000 + " seconds");
+  showNotification("Looking for the " + product.name + " for you", "Checking for changes every " + timeout/1000 + " seconds");
 }
 
 function showInStockNotification(product) {
-  showNotification(product + " is in Stock!", "Click here to see the Google Store product page");
+  showNotification(product.name + " is in Stock!", "Click here to see the Google Store product page");
 }
 
 function showIncreaseNotification(product) {
-  showNotification("More models of the " + product + " are in Stock!", "Click here to see the Google Store product page");
+  showNotification("More models of the " + product.name + " are in Stock!", "Click here to see the Google Store product page");
 }
 
 function showDecreaseNotification(product) {
-  showNotification("Some models of the " + product + " have gone out of Stock!", "Click here to see the Google Store product page");
+  showNotification("Some models of the " + product.name + " have gone out of Stock!", "Click here to see the Google Store product page");
 }
 
 function showOutOfStockNotification(product) {
-  showNotification("The " + product + " has gone out of Stock!", "Click here to see the Google Store product page");
+  showNotification("The " + product.name + " has gone out of Stock!", "Click here to see the Google Store product page");
 }
 
 function showNotification(title, message) {

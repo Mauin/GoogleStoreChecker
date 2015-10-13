@@ -10,11 +10,15 @@ var productString = "product"
 var products = new Set();
 var categories = new Set();
 
-var targetName = "nexus_6p"
-var targetProduct = "/product/nexus_6p";
-var targetUrl = "https://store.google.com/product/nexus_6p";
+var targetProduct = "";
 
 var intervalLoop = false;
+
+function Product() {
+  this.name = "";
+  this.productUrl = "";
+  this.url = "";
+}
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -26,17 +30,12 @@ chrome.runtime.onMessage.addListener(
       });
     } else if (request.product) {
       // Product selection broadcast
-      var productUrl = request.product;
-      selectProduct(productUrl);
+      targetProduct = request.product;
+      console.log(targetProduct);
       restartLoop();
     }
-  });
-
-function selectProduct(productUrl) {
-  targetProduct = productUrl;
-  targetUrl = storeUrl + productUrl;
-  targetName = productUrl.replace("/product/", '');
-}
+  }
+);
 
 chrome.notifications.onClicked.addListener(function(id) {
   openStorePageTab();
@@ -50,8 +49,10 @@ function openStorePageTab() {
 }
 
 function refreshContent() {
-  loadUrl(targetUrl, function(response) {
-    processResponse(targetName, response, setBadge);
+  console.log("refresh");
+  console.log(targetProduct);
+  loadUrl(targetProduct.url, function(response) {
+    processResponse(targetProduct, response, setBadge);
   });
 }
 
@@ -81,13 +82,15 @@ function getDevices() {
     var domCategories = dom.find('a.block-link');
 
     for (var i = 0; i < domCategories.length; i++) {
+      // TODO rename, it's actually path, not name!
       var name = domCategories[i].pathname;
       if (name === undefined) {
         break;
       }
 
       if (name.includes(productString)) {
-        products.add(name);
+        var path = domCategories[i].dataset.title;
+        products.add(createProduct(path, name));
       } else if (name.includes(categoryString)) {
         categories.add(name);
       }
@@ -99,13 +102,13 @@ function getDevices() {
       loadUrl(categoryUrl, function(response) {
         // Parse DOM
         var dom = jQuery('<div/>').html(response).contents();
-
         // Find all 'div's with 'data-available' parameters
         var devices = dom.find('a.flag-button-hover-target');
         for (var j = 0; j < devices.length; j++) {
+          var name = devices[j].dataset.title;
           var path = devices[j].pathname;
           if (path.includes(productString)) {
-            products.add(path);
+            products.add(createProduct(name, path));
           }
         }
       });
@@ -113,10 +116,16 @@ function getDevices() {
   });
 }
 
+function createProduct(name, path) {
+  var product = new Product();
+  product.name = name;
+  product.productUrl = path;
+  product.url = storeUrl + path;
+  return product;
+}
+
 // Background loop
 function loop(delay) {
-  getDevices();
-
   intervalLoop = setInterval(refreshContent, delay);
 }
 
@@ -130,7 +139,9 @@ function restartLoop() {
   refreshContent();
   loop(timeout);
 
-  showStartNotification(targetName);
+  showStartNotification(targetProduct);
 }
 
+getDevices();
+targetProduct = createProduct("Nexus 6P", "/product/nexus_6p");
 restartLoop();
