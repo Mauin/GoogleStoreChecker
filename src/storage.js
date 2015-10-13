@@ -1,7 +1,7 @@
 var cached = 0;
 
 function resetCache() {
-  cache = 0;
+  cached = 0;
 }
 
 function processResponse(product, response, callback) {
@@ -9,11 +9,8 @@ function processResponse(product, response, callback) {
   var available = checkAvailability(models);
   console.log(product + " - " + available + " out of " + models.length + " models available");
 
-  // Compare to last value
-  if (available != cached) {
-    // Show notification on value change
-    showUpdateNotification(product);
-  }
+  notificationHandling(product, cached, available);
+  
   // Store new value
   cached = available;
 
