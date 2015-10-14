@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }, function(response) {
     selectedProductName = response.selected.name;
     products = response.products;
+    console.log(products);
     products.sort(function(a, b) {
       return a.name.localeCompare(b.name);
     });

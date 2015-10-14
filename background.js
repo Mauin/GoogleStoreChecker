@@ -8,6 +8,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.products) {
       // List of Products requested
+      console.log(products);
       sendResponse({
         products: products,
         selected: targetProduct
@@ -169,7 +170,7 @@ function main() {
 
     chrome.storage.sync.get("products", function(storedProducts) {
       if (storedProducts.products != undefined && storedProducts.products.length > 0) {
-        products = new Set(storedProducts.products);
+        products = storedProducts.products;
       } else {
         getDevices();
       }
