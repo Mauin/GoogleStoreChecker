@@ -1,30 +1,11 @@
-var timeout = 30000;
-var productRefreshInterval = 86400000;
-var colorGreen = "#00C400";
-var colorRed = "#F20000";
-
-var storeUrl = "https://store.google.com"
-
-var categoryString = "category";
-var productString = "product"
-
+var refreshInterval = 30000;
 var lastProductSyncTimestamp = "";
 var products = new Set();
-var categories = new Set();
-
-var targetProduct = "";
-
 var intervalLoop = false;
-
-function Product() {
-  this.name = "";
-  this.productUrl = "";
-  this.url = "";
-}
+var targetProduct;
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-
     if (request.products) {
       // List of Products requested
       console.log(products);
@@ -34,13 +15,11 @@ chrome.runtime.onMessage.addListener(
       });
     } else if (request.product) {
       // Product selection broadcast
-      setTargetProduct(request.product);
-
       chrome.storage.sync.set({
         selected: targetProduct
       });
 
-      restartLoop();
+      restartLoop(request.product);
     }
   }
 );
@@ -49,21 +28,11 @@ chrome.notifications.onClicked.addListener(function(id) {
   openStorePageTab();
 });
 
-function setTargetProduct(product) {
-  targetProduct = product;
-}
-
 function openStorePageTab() {
   var createProperties = {
-    url: targetUrl
+    url: targetProduct.url
   }
   chrome.tabs.create(createProperties, function(tab) {});
-}
-
-function refreshContent() {
-  loadUrl(targetProduct.url, function(response) {
-    processResponse(targetProduct, response, setBadge);
-  });
 }
 
 function setBadge(count) {
@@ -91,6 +60,8 @@ function setAndSyncTimeStamp() {
 // TODO refactor and extract
 function getDevices() {
   setAndSyncTimeStamp();
+
+  var categories = new Set();
 
   loadUrl(storeUrl, function(response) {
     // Parse DOM
@@ -126,7 +97,7 @@ function getDevices() {
             products.add(createProduct(name, path));
           }
 
-          // We're done here
+          // We're done here - sync everything
           if (i == catArray.length && j == devices.length) {
             chrome.storage.sync.set({
               products: Array.from(products)
@@ -138,39 +109,40 @@ function getDevices() {
   });
 }
 
-function createProduct(name, path) {
-  var product = new Product();
-  product.name = name;
-  product.productUrl = path;
-  product.url = storeUrl + path;
-  return product;
-}
-
-function checkForDeviceUpdate() {
+function checkForDeviceUpdateIfNecessary() {
   var now = Date.now();
   if (now - lastProductSyncTimestamp > productRefreshInterval) {
-    console.log("refreshing devices");
+    console.log("refreshing product list");
     getDevices();
   }
 }
 
-// Background loop
-function loop(delay) {
-  intervalLoop = setInterval(refreshContent, delay);
+
+function refreshContent(product) {
+  loadUrl(product.url, function(response) {
+    processResponse(product, response, setBadge);
+  });
 }
 
-function restartLoop() {
+function loop(delay, product) {
+    intervalLoop = setInterval(function() {
+      refreshContent(product);
+    }, delay);
+}
+
+function restartLoop(product) {
+  targetProduct = product;
   if (intervalLoop) {
     clearInterval(intervalLoop);
     intervalLoop = false;
     resetCache();
   }
 
-  checkForDeviceUpdate();
-  refreshContent();
-  loop(timeout);
+  checkForDeviceUpdateIfNecessary();
+  refreshContent(product);
+  loop(refreshInterval, product);
 
-  showStartNotification(targetProduct);
+  showStartNotification(product);
 }
 
 
@@ -182,21 +154,21 @@ function main() {
 
     chrome.storage.sync.get("products", function(storedProducts) {
       if (storedProducts.products != undefined && storedProducts.products.length > 0) {
-        console.log("array from " + storedProducts.products);
         products = new Set(storedProducts.products);
       } else {
         getDevices();
       }
 
       chrome.storage.sync.get("selected", function(selectedProduct) {
+        var targetProduct;
         if (selectedProduct.selected) {
-          setTargetProduct(selectedProduct.selected);
+          targetProduct = selectedProduct.selected;
         } else {
           // TODO select a smarter default
-          setTargetProduct(createProduct("Nexus 6P", "/product/nexus_6p"));
+          targetProduct = createProduct("Nexus 6P", "/product/nexus_6p");
         }
 
-        restartLoop();
+        restartLoop(targetProduct);
       });
     });
   });

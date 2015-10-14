@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     products: true
   }, function(response) {
     selectedProductName = response.selected.name;
-    products = response.products;
+    products = response.products;    
     generateForm(products, selectedProductName);
   });
 });

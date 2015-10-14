@@ -17,6 +17,8 @@
   "background": {
     "scripts": [
       "lib/jquery.js",
+      "src/constants.js",
+      "src/product.js",
       "src/http.js",
       "src/notification.js",
       "src/storage.js",

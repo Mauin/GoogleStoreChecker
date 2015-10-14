@@ -18,7 +18,7 @@ function notificationHandling(product, last, now) {
 }
 
 function showStartNotification(product) {
-  showNotification("Looking for the " + product.name + " for you", "Checking for changes every " + timeout/1000 + " seconds");
+  showNotification("Looking for the " + product.name + " for you", "Checking for changes every " + refreshInterval/1000 + " seconds");
 }
 
 function showInStockNotification(product) {
