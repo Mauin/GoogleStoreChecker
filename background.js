@@ -1,6 +1,6 @@
 var refreshInterval = 30000;
 var lastProductSyncTimestamp = "";
-var products = new Set();
+var products = new Array();
 var intervalLoop = false;
 var targetProduct;
 
@@ -8,15 +8,14 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.products) {
       // List of Products requested
-      console.log(products);
       sendResponse({
-        products: Array.from(products),
+        products: products,
         selected: targetProduct
       });
     } else if (request.product) {
       // Product selection broadcast
       chrome.storage.sync.set({
-        selected: targetProduct
+        selected: request.product
       });
 
       restartLoop(request.product);
@@ -61,6 +60,7 @@ function setAndSyncTimeStamp() {
 function getDevices() {
   setAndSyncTimeStamp();
 
+  products = new Array();
   var categories = new Set();
 
   loadUrl(storeUrl, function(response) {
@@ -76,7 +76,7 @@ function getDevices() {
 
       if (path.includes(productString)) {
         var name = domCategories[i].dataset.title;
-        products.add(createProduct(name, path));
+        addProduct(createProduct(name, path));
       } else if (path.includes(categoryString)) {
         categories.add(path);
       }
@@ -94,19 +94,33 @@ function getDevices() {
           var name = devices[j].dataset.title;
           var path = devices[j].pathname;
           if (path.includes(productString)) {
-            products.add(createProduct(name, path));
+            addProduct(createProduct(name, path));
           }
 
           // We're done here - sync everything
           if (i == catArray.length && j == devices.length) {
             chrome.storage.sync.set({
-              products: Array.from(products)
+              products: products
             });
           }
         }
       });
     }
   });
+}
+
+function addProduct(product) {
+  var contains = false;
+  for (var i = 0; i < products.length && !contains; i++) {
+    var current = products[i];
+    if (current.name === product.name) {
+      contains = true;
+    }
+  }
+
+  if (!contains) {
+    products.push(product);
+  }
 }
 
 function checkForDeviceUpdateIfNecessary() {
@@ -132,6 +146,7 @@ function loop(delay, product) {
 
 function restartLoop(product) {
   targetProduct = product;
+
   if (intervalLoop) {
     clearInterval(intervalLoop);
     intervalLoop = false;

@@ -6,7 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
     products: true
   }, function(response) {
     selectedProductName = response.selected.name;
-    products = response.products;    
+    products = response.products;
+    products.sort(function(a, b) {
+      return a.name.localeCompare(b.name);
+    });
+
     generateForm(products, selectedProductName);
   });
 });
