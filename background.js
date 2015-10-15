@@ -4,27 +4,29 @@ var products = new Array();
 var intervalLoop = false;
 var targetProduct;
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.products) {
-      // List of Products requested
-      console.log(products);
-      sendResponse({
-        products: products,
-        selected: targetProduct
-      });
-    } else if (request.product) {
-      // Product selection broadcast
-      chrome.storage.sync.set({
-        selected: request.product
-      });
-
-      restartLoop(request.product);
-    }
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.products) {
+    // List of Products requested
+    console.log(products);
+    sendResponse({
+      products: products,
+      selected: targetProduct
+    });
+  } else if (request.product) {
+    // Product selection broadcast
+    chrome.storage.sync.set({
+      selected: request.product
+    });
+    restartLoop(request.product);
   }
-);
+});
 
 chrome.notifications.onClicked.addListener(function(id) {
+  openStorePageTab();
+});
+
+chrome.browserAction.onClicked.addListener(function() {
+  console.log("clicked icon");
   openStorePageTab();
 });
 
@@ -140,9 +142,9 @@ function refreshContent(product) {
 }
 
 function loop(delay, product) {
-    intervalLoop = setInterval(function() {
-      refreshContent(product);
-    }, delay);
+  intervalLoop = setInterval(function() {
+    refreshContent(product);
+  }, delay);
 }
 
 function restartLoop(product) {
