@@ -16,7 +16,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.interval) {
     // Timeout selection broadcast
-    console.log("Interval");
     chrome.storage.sync.set({
       interval: request.interval
     });
@@ -197,7 +196,15 @@ function main() {
           targetProduct = createProduct("Nexus 6P", "/product/nexus_6p");
         }
 
-        restartLoop(targetProduct);
+        chrome.storage.sync.get("interval", function(interval) {
+          if (interval.interval) {
+            refreshInterval = interval.interval;
+          } else {
+            refreshInterval = 30000;
+          }
+
+          restartLoop(targetProduct);
+        });
       });
     });
   });
