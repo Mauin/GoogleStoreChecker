@@ -9,9 +9,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     // List of Products requested
     sendResponse({
       products: products,
-      selected: targetProduct
+      selected: targetProduct,
+      interval: refreshInterval
     });
-  } else if (request.product) {
+  }
+
+  if (request.interval) {
+    // Timeout selection broadcast
+    console.log("Interval");
+    chrome.storage.sync.set({
+      interval: request.interval
+    });
+    refreshInterval = request.interval;
+  }
+
+  if (request.product) {
     // Product selection broadcast
     chrome.storage.sync.set({
       selected: request.product
