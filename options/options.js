@@ -6,9 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
   chrome.extension.sendMessage({
     products: true
   }, function(response) {
-    selectedProductName = response.selected.name;
+    var selectedProductName;
+    if (response.selected) {
+      selectedProductName = response.selected.name;
+    }
 
     products = response.products;
+    console.log(products);
     products.sort(function(a, b) {
       return a.name.localeCompare(b.name);
     });

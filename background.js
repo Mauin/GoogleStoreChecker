@@ -1,6 +1,6 @@
 var refreshInterval = 30000;
 var lastProductSyncTimestamp = "";
-var products = new Array();
+var products;
 var intervalLoop = false;
 var targetProduct;
 
@@ -68,64 +68,11 @@ function setAndSyncTimeStamp() {
   });
 }
 
-// TODO refactor and extract
-function getDevices() {
-  setAndSyncTimeStamp();
-
-  products = new Array();
-  var categories = new Set();
-
-  loadUrl(storeUrl, function(response) {
-    // Parse DOM
-    var dom = jQuery('<div/>').html(response).contents();
-    var domCategories = dom.find('a.block-link');
-
-    for (var i = 0; i < domCategories.length; i++) {
-      var path = domCategories[i].pathname;
-      if (path === undefined) {
-        break;
-      }
-
-      if (path.includes(productString)) {
-        var name = domCategories[i].dataset.title;
-        addProduct(createProduct(name, path));
-      } else if (path.includes(categoryString)) {
-        categories.add(path);
-      }
-    }
-    var catArray = Array.from(categories);
-    for (var i = 0; i < catArray.length; i++) {
-      var categoryUrl = storeUrl + catArray[i];
-
-      loadUrl(categoryUrl, function(response) {
-        // Parse DOM
-        var dom = jQuery('<div/>').html(response).contents();
-        // Find all 'div's with 'data-available' parameters
-        var devices = dom.find('a.flag-button-hover-target');
-        for (var j = 0; j < devices.length; j++) {
-          var name = devices[j].dataset.title;
-          var path = devices[j].pathname;
-          if (path.includes(productString)) {
-            addProduct(createProduct(name, path));
-          }
-
-          // We're done here - sync everything
-          if (i == catArray.length && j == devices.length) {
-            chrome.storage.sync.set({
-              products: products
-            });
-          }
-        }
-      });
-    }
-  });
-}
-
 function addProduct(product) {
   var contains = false;
   for (var i = 0; i < products.length && !contains; i++) {
     var current = products[i];
-    if (current.name === product.name) {
+    if (current.name === product.name || current.url === product.url) {
       contains = true;
     }
   }
@@ -135,11 +82,12 @@ function addProduct(product) {
   }
 }
 
-function checkForDeviceUpdateIfNecessary() {
+function checkForDeviceUpdateIfNecessary(callback) {
   var now = Date.now();
-  if (now - lastProductSyncTimestamp > productRefreshInterval) {
-    console.log("refreshing product list");
-    getDevices();
+  if (products === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
+    getDevices(callback);
+  } else {
+    callback();
   }
 }
 
@@ -157,19 +105,27 @@ function loop(delay, product) {
 }
 
 function restartLoop(product) {
-  targetProduct = product;
-
   if (intervalLoop) {
     clearInterval(intervalLoop);
     intervalLoop = false;
     resetCache();
   }
 
-  checkForDeviceUpdateIfNecessary();
-  refreshContent(product);
-  loop(refreshInterval, product);
+  checkForDeviceUpdateIfNecessary(function() {
+    if (product === undefined) {
+      chrome.tabs.create({
+        'url': 'chrome://extensions/?options=' + chrome.runtime.id
+      });
+      return;
+    }
 
-  showStartNotification(product);
+    targetProduct = product;
+
+    refreshContent(product);
+    loop(refreshInterval, product);
+
+    showStartNotification(product);
+  });
 }
 
 
@@ -182,17 +138,12 @@ function main() {
     chrome.storage.sync.get("products", function(storedProducts) {
       if (storedProducts.products != undefined && storedProducts.products.length > 0) {
         products = storedProducts.products;
-      } else {
-        getDevices();
       }
 
       chrome.storage.sync.get("selected", function(selectedProduct) {
         var targetProduct;
         if (selectedProduct.selected) {
           targetProduct = selectedProduct.selected;
-        } else {
-          // TODO select a smarter default
-          targetProduct = createProduct("Nexus 6P", "/product/nexus_6p");
         }
 
         chrome.storage.sync.get("interval", function(interval) {

@@ -25,6 +25,7 @@
       "src/http.js",
       "src/notification.js",
       "src/storage.js",
+      "src/devices.js",
       "background.js"
     ]
   },
