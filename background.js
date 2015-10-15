@@ -7,7 +7,6 @@ var targetProduct;
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.products) {
     // List of Products requested
-    console.log(products);
     sendResponse({
       products: products,
       selected: targetProduct
