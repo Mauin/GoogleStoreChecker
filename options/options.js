@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
       return a.name.localeCompare(b.name);
     });
     generateForm(products, selectedProductName);
-    console.log(response);
     setIntervalTextBox(response.interval / 1000);
   });
 });
@@ -23,7 +22,7 @@ function save() {
 
   var selectedProduct = findNameInProducts(products, selected);
   var selectedInterval = document.getElementById('interval').value * 1000;
-  
+
   if (selectedInterval < minimumInterval) {
     selectedInterval = minimumInterval;
   }

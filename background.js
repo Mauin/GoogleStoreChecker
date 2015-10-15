@@ -36,7 +36,6 @@ chrome.notifications.onClicked.addListener(function(id) {
 });
 
 chrome.browserAction.onClicked.addListener(function() {
-  console.log("clicked icon");
   openStorePageTab();
 });
 
