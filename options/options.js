@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     products = response.products;
-    console.log(products);
     products.sort(function(a, b) {
       return a.name.localeCompare(b.name);
     });

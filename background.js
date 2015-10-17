@@ -1,6 +1,6 @@
-var refreshInterval = 30000;
-var lastProductSyncTimestamp = "";
-var products;
+var refreshInterval;
+var lastProductSyncTimestamp;
+var availableProducts;
 var intervalLoop = false;
 var targetProduct;
 
@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.products) {
     // List of Products requested
     sendResponse({
-      products: products,
+      products: availableProducts,
       selected: targetProduct,
       interval: refreshInterval
     });
@@ -16,17 +16,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.interval) {
     // Timeout selection broadcast
-    chrome.storage.sync.set({
-      interval: request.interval
-    });
+    syncInterval(request.interval);
     refreshInterval = request.interval;
   }
 
   if (request.product) {
     // Product selection broadcast
-    chrome.storage.sync.set({
-      selected: request.product
-    });
+    syncSelectedProduct(request.product);
     restartLoop(request.product);
   }
 });
@@ -46,6 +42,12 @@ function openStorePageTab() {
   chrome.tabs.create(createProperties, function(tab) {});
 }
 
+function showOptionsDialog() {
+  chrome.tabs.create({
+    'url': 'chrome://extensions/?options=' + chrome.runtime.id
+  });
+}
+
 function setBadge(count) {
   chrome.browserAction.setBadgeText({
     text: count.toString()
@@ -61,36 +63,18 @@ function setBadge(count) {
   }
 }
 
-function setAndSyncTimeStamp() {
-  lastProductSyncTimestamp = Date.now();
-  chrome.storage.sync.set({
-    syncTimestamp: lastProductSyncTimestamp
-  });
-}
-
-function addProduct(product) {
-  var contains = false;
-  for (var i = 0; i < products.length && !contains; i++) {
-    var current = products[i];
-    if (current.name === product.name || current.url === product.url) {
-      contains = true;
-    }
-  }
-
-  if (!contains) {
-    products.push(product);
-  }
-}
-
 function checkForDeviceUpdateIfNecessary(callback) {
   var now = Date.now();
-  if (products === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
+
+  if (availableProducts === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
+    lastProductSyncTimestamp = Date.now();
+    syncTimestamp(lastProductSyncTimestamp);
+
     getDevices(callback);
   } else {
-    callback();
+    callback(availableProducts);
   }
 }
-
 
 function refreshContent(product) {
   loadUrl(product.url, function(response) {
@@ -111,41 +95,45 @@ function restartLoop(product) {
     resetCache();
   }
 
-  checkForDeviceUpdateIfNecessary(function() {
+  checkForDeviceUpdateIfNecessary(function(products) {
+    availableProducts = products;
+
     if (product === undefined) {
-      chrome.tabs.create({
-        'url': 'chrome://extensions/?options=' + chrome.runtime.id
-      });
+      showOptionsDialog();
       return;
     }
 
     targetProduct = product;
+    showStartNotification(product);
 
     refreshContent(product);
     loop(refreshInterval, product);
-
-    showStartNotification(product);
   });
 }
 
 
 function main() {
+
+  // Get synced device refresh timestamp
   chrome.storage.sync.get("syncTimestamp", function(timestamp) {
     if (timestamp.syncTimestamp != undefined) {
       lastProductSyncTimestamp = timestamp.syncTimestamp;
     }
 
+    // Get synced products
     chrome.storage.sync.get("products", function(storedProducts) {
       if (storedProducts.products != undefined && storedProducts.products.length > 0) {
-        products = storedProducts.products;
+        availableProducts = storedProducts.products;
       }
 
+      // Get synced selected product
       chrome.storage.sync.get("selected", function(selectedProduct) {
         var targetProduct;
         if (selectedProduct.selected) {
           targetProduct = selectedProduct.selected;
         }
 
+        // Get synced refresh interval
         chrome.storage.sync.get("interval", function(interval) {
           if (interval.interval) {
             refreshInterval = interval.interval;
@@ -153,6 +141,7 @@ function main() {
             refreshInterval = 30000;
           }
 
+          // Start the refresh loop
           restartLoop(targetProduct);
         });
       });
