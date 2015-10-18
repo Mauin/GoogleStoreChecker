@@ -4,6 +4,9 @@ var availableProducts;
 var intervalLoop = false;
 var targetProduct;
 
+/**
+ * Adds listener to messages from the options page
+ */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.products) {
     // List of Products requested
@@ -27,14 +30,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
 });
 
+/**
+ * Adds listener to browser action click and opens the Google Store page
+ */
 chrome.notifications.onClicked.addListener(function(id) {
   openStorePageTab();
 });
 
+/**
+ * Adds listener to browser action click and opens the Google Store page
+ */
 chrome.browserAction.onClicked.addListener(function() {
   openStorePageTab();
 });
 
+/**
+ * Opens the Google Store page of the currently selected product
+ */
 function openStorePageTab() {
   var createProperties = {
     url: targetProduct.url
@@ -42,12 +54,19 @@ function openStorePageTab() {
   chrome.tabs.create(createProperties, function(tab) {});
 }
 
+/**
+ * Shows the options dialog of the extension
+ */
 function showOptionsDialog() {
   chrome.tabs.create({
     'url': 'chrome://extensions/?options=' + chrome.runtime.id
   });
 }
 
+/**
+ * Sets the number in the icon badge to the given value
+ * @param {integer} count number to set the badge to
+ */
 function setBadge(count) {
   chrome.browserAction.setBadgeText({
     text: count.toString()
@@ -63,6 +82,11 @@ function setBadge(count) {
   }
 }
 
+/**
+ * Checks if a device update is necessary and performs one if it is, otherwise
+ * returns the currently cached device list via the given callback
+ * @param  {function} callback Callback to send the products to
+ */
 function checkForDeviceUpdateIfNecessary(callback) {
   var now = Date.now();
 
@@ -76,18 +100,33 @@ function checkForDeviceUpdateIfNecessary(callback) {
   }
 }
 
+/**
+ * Refreshes the current device content
+ * @param  {Product} product the selected product to refresh the data for
+ */
 function refreshContent(product) {
   loadUrl(product.url, function(response) {
     processResponse(product, response, setBadge);
   });
 }
 
+/**
+ * Basic event-loop for the extension. Will call the refresh method in a regular
+ * interval to refresh data for the given product.
+ * @param  {integer} delay  interval to repeat the refresh in
+ * @param  {Product} product Currently selected product
+ */
 function loop(delay, product) {
   intervalLoop = setInterval(function() {
     refreshContent(product);
   }, delay);
 }
 
+/**
+ * Restarts the event-loop for the given product. If a loop is already running,
+ * will stop the running one.
+ * @param  {Product} product Product to use for the new event-loop
+ */
 function restartLoop(product) {
   if (intervalLoop) {
     clearInterval(intervalLoop);
@@ -111,7 +150,12 @@ function restartLoop(product) {
   });
 }
 
-
+/**
+ * Main Method of the extension, will get all the synced data and select
+ * defaults if none is found.
+ *
+ * Will then start the event-loop for the given product.
+ */
 function main() {
 
   // Get synced device refresh timestamp
