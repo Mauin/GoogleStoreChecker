@@ -20,14 +20,15 @@
   "background": {
     "scripts": [
       "lib/jquery.js",
-      "src/constants.js",
-      "src/product.js",
-      "src/http.js",
-      "src/sync.js",
-      "src/notification.js",
-      "src/storage.js",
-      "src/devices.js",
-      "background.js"
+      "background/constants.js",
+      "background/product.js",
+      "background/http.js",
+      "background/sync.js",
+      "background/notification.js",
+      "background/listener.js",
+      "background/storage.js",
+      "background/devices.js",
+      "background/background.js"
     ]
   },
   "permissions": [
