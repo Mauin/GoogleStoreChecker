@@ -1,30 +1,40 @@
 function getDevices(callback) {
   var products = new Array();
   var remaining = 0;
-  // Find categories (and products from the front page)
-  findElements(storeUrl, products, function(response) {
-    var dom = jQuery('<div/>').html(response).contents();
-    return dom.find('a.block-link');
 
-  }, function(products, categories) {
+  findCategories(products, function(foundProducts, categories) {
+    addAllProducts(products, foundProducts);
     remaining = categories.length;
     // Find products in every category
     for (var i = 0; i < categories.length; i++) {
       var categoryUrl = storeUrl + categories[i];
-      findElements(categoryUrl, products, function(response) {
-        var dom = jQuery('<div/>').html(response).contents();
-        // Find all 'div's with 'data-available' parameters
-        return dom.find('a.flag-button-hover-target');
 
-      }, function(foundProducts, categories) {
+      findProductsForCategory(categoryUrl, foundProducts, function(found, categories) {
+        addAllProducts(products, found);
         remaining--;
         if (remaining == 0) {
-          syncProducts(foundProducts);
-          callback(foundProducts);
+          syncProducts(products);
+          callback(products);
         }
       });
     }
   });
+}
+
+function findProductsForCategory(categoryUrl, products, callback) {
+  findElements(categoryUrl, products, function(response) {
+    var dom = jQuery('<div/>').html(response).contents();
+    // Find all 'div's with 'data-available' parameters
+    return dom.find('a.flag-button-hover-target');
+  }, callback);
+}
+
+function findCategories(products, callback) {
+  // Find categories (and products from the front page)
+  findElements(storeUrl, products, function(response) {
+    var dom = jQuery('<div/>').html(response).contents();
+    return dom.find('a.block-link');
+  }, callback);
 }
 
 function findElements(url, products, domParseCallback, callback) {
@@ -52,6 +62,12 @@ function parseElements(elements, products, callback) {
   }
 
   callback(products, categories);
+}
+
+function addAllProducts(products, toAdd) {
+  for (var i = 0; i < toAdd.length; i++) {
+    addProduct(products, toAdd[i]);
+  }
 }
 
 function addProduct(products, product) {
