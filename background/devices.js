@@ -2,23 +2,37 @@ function getDevices(callback) {
   var products = new Array();
   var remaining = 0;
 
-  findCategories(products, function(foundProducts, categories) {
+  findCategories(function(foundProducts, categories) {
     addAllProducts(products, foundProducts);
-    remaining = categories.length;
-    // Find products in every category
-    for (var i = 0; i < categories.length; i++) {
-      var categoryUrl = storeUrl + categories[i];
 
-      findProductsForCategory(categoryUrl, foundProducts, function(found, categories) {
-        addAllProducts(products, found);
-        remaining--;
-        if (remaining == 0) {
-          syncProducts(products);
-          callback(products);
-        }
-      });
-    }
+    findProductInCategories(categories, function(foundProducts) {
+      addAllProducts(products, foundProducts);
+
+      syncProducts(products);
+      callback(products);
+
+    });
+
   });
+}
+
+function findProductInCategories(categories, callback) {
+  var products = new Array();
+
+  var remaining = categories.length;
+  // Find products in every category
+  for (var i = 0; i < categories.length; i++) {
+    var categoryUrl = storeUrl + categories[i];
+
+    findProductsForCategory(categoryUrl, products, function(foundProducts, categories) {
+      addAllProducts(products, foundProducts);
+
+      remaining--;
+      if (remaining == 0) {
+        callback(products);
+      }
+    });
+  }
 }
 
 function findProductsForCategory(categoryUrl, products, callback) {
@@ -29,7 +43,9 @@ function findProductsForCategory(categoryUrl, products, callback) {
   }, callback);
 }
 
-function findCategories(products, callback) {
+function findCategories(callback) {
+  var products = new Array();
+
   // Find categories (and products from the front page)
   findElements(storeUrl, products, function(response) {
     var dom = jQuery('<div/>').html(response).contents();
