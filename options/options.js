@@ -77,6 +77,7 @@ function generateForm(products, selectedProductName) {
     if (currentProduct.configurations.length > 1) {
       console.log(currentProduct.configurations);
       var select = document.createElement('select');
+      select.setAttribute("align","right");
       select.appendChild(createOption(-1, "Check for all"));
 
       for (var i = 0; i < currentProduct.configurations.length; i++) {
