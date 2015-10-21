@@ -66,12 +66,37 @@ function generateForm(products, selectedProductName) {
     }
     box.appendChild(checkbox);
 
-    var label = document.createElement('label')
+    // Append product name label
+    var label = document.createElement('label');
     label.htmlFor = currentProduct.name;
     label.appendChild(document.createTextNode(currentProduct.name));
 
     box.appendChild(label);
+
+    // Append Configuration Spinner
+    if (currentProduct.configurations.length > 0) {
+      console.log(currentProduct.configurations);
+      var select = document.createElement('select');
+      for (var i = 0; i < currentProduct.configurations.length; i++) {
+        var config = currentProduct.configurations[i];
+        var option = document.createElement('option');
+        option.value = i;
+        option.innerHTML = createConfigString(config);
+        select.appendChild(option);
+      }
+      box.appendChild(select);
+    }
+
     box.appendChild(document.createElement("br"));
   }
   document.getElementById("saveButton").addEventListener('click', save);
+}
+
+function createConfigString(config) {
+  var string = "";
+
+  for (var i = 0; i < config.data.length; i++) {
+    string += config.data[i].name + " ";
+  }
+  return string;
 }
