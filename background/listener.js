@@ -17,7 +17,8 @@ function addMessageListener() {
       sendResponse({
         products: availableProducts,
         selected: targetProduct,
-        interval: refreshInterval
+        interval: refreshInterval,
+        config: targetModel
       });
     }
 
@@ -28,10 +29,16 @@ function addMessageListener() {
     }
 
     if (request.product) {
+      var config;
+      if (request.config) {
+        // Config selection
+        config = request.config;
+      }
+
       // Product selection broadcast
-      syncSelectedProduct(request.product);
-      setTargetProduct(request.product);
-      restartLoop(request.product);
+      syncSelectedProduct(request.product, config);
+      setTargetProduct(request.product, config);
+      restartLoop(request.product, config);
     }
   });
 }

@@ -11,11 +11,16 @@ document.addEventListener('DOMContentLoaded', function() {
       selectedProductName = response.selected.name;
     }
 
+    var selectedConfig;
+    if (response.config) {
+      selectedConfig = response.config;
+    }
+
     products = response.products;
     products.sort(function(a, b) {
       return a.name.localeCompare(b.name);
     });
-    generateForm(products, selectedProductName);
+    generateForm(products, selectedProductName, selectedConfig);
     setIntervalTextBox(response.interval / 1000);
   });
 });
@@ -23,8 +28,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function save() {
   var selected = document.querySelector('input[name="product"]:checked').value;
 
-  var selectedProduct = findNameInProducts(products, selected);
+  var selectedProduct = products[selected];
   var selectedInterval = document.getElementById('interval').value * 1000;
+
+  var selectedSelect = document.querySelector("select[name=\"" + selected + "\"]");
+  var config = selectedSelect.options[selectedSelect.selectedIndex].value;
+
+  var selectedConfig;
+  if (config >= 0) {
+    selectedConfig = selectedProduct.configurations[config]
+  }
 
   if (selectedInterval < minimumInterval) {
     selectedInterval = minimumInterval;
@@ -32,7 +45,8 @@ function save() {
 
   chrome.extension.sendMessage({
     product: selectedProduct,
-    interval: selectedInterval
+    interval: selectedInterval,
+    config: selectedConfig
   }, function(response) {});
 }
 
@@ -51,16 +65,16 @@ function setIntervalTextBox(interval) {
   textBox.value = interval;
 }
 
-function generateForm(products, selectedProductName) {
+function generateForm(products, selectedProductName, selectedConfig) {
   var box = document.getElementById('productBox');
 
-  for (var product in products) {
-    var currentProduct = products[product];
+  for (var i = 0; i < products.length; i++) {
+    var currentProduct = products[i];
 
     var checkbox = document.createElement("input");
     checkbox.type = "radio";
     checkbox.name = "product";
-    checkbox.value = currentProduct.name;
+    checkbox.value = i;
     if (selectedProductName === currentProduct.name) {
       checkbox.checked = true;
     }
@@ -73,16 +87,26 @@ function generateForm(products, selectedProductName) {
 
     box.appendChild(label);
 
+    var selectedConfigString = "";
+    if (selectedConfig !== undefined) {
+      selectedConfigString = createConfigString(selectedConfig);
+    }
+
     // Append Configuration Spinner
     if (currentProduct.configurations.length > 1) {
-      console.log(currentProduct.configurations);
       var select = document.createElement('select');
       select.setAttribute("align","right");
+      select.name = i;
       select.appendChild(createOption(-1, "Check for all"));
 
-      for (var i = 0; i < currentProduct.configurations.length; i++) {
-        var config = currentProduct.configurations[i];
-        select.appendChild(createOption(i, createConfigString(config)));
+      for (var j = 0; j < currentProduct.configurations.length; j++) {
+        var config = currentProduct.configurations[j];
+        var configString = createConfigString(config);
+        select.appendChild(createOption(j, configString));
+
+        if (configString === selectedConfigString) {
+          select.value = j;
+        }
       }
       box.appendChild(select);
     }

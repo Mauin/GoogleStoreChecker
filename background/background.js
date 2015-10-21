@@ -3,6 +3,7 @@ var lastProductSyncTimestamp;
 var availableProducts;
 var intervalLoop = false;
 var targetProduct;
+var targetModel;
 
 /**
  * Opens the Google Store page of the currently selected product
@@ -64,9 +65,9 @@ function checkForDeviceUpdateIfNecessary(callback) {
  * Refreshes the current device content
  * @param  {Product} product the selected product to refresh the data for
  */
-function refreshContent(product) {
+function refreshContent(product, config) {
   loadUrl(product.url, function(response) {
-    processResponse(product, response, setBadge);
+    processResponse(product, config, response, setBadge);
   });
 }
 
@@ -76,9 +77,9 @@ function refreshContent(product) {
  * @param  {integer} delay  interval to repeat the refresh in
  * @param  {Product} product Currently selected product
  */
-function loop(delay, product) {
+function loop(delay, product, config) {
   intervalLoop = setInterval(function() {
-    refreshContent(product);
+    refreshContent(product, config);
   }, delay);
 }
 
@@ -87,7 +88,7 @@ function loop(delay, product) {
  * will stop the running one.
  * @param  {Product} product Product to use for the new event-loop
  */
-function restartLoop(product) {
+function restartLoop(product, config) {
   if (intervalLoop) {
     clearInterval(intervalLoop);
     intervalLoop = false;
@@ -102,16 +103,17 @@ function restartLoop(product) {
       return;
     }
 
-    setTargetProduct(product);
-    showStartNotification(product);
+    setTargetProduct(product, config);
+    showStartNotification(product, config);
 
-    refreshContent(product);
-    loop(refreshInterval, product);
+    refreshContent(product, config);
+    loop(refreshInterval, product, config);
   });
 }
 
-function setTargetProduct(product) {
+function setTargetProduct(product, config) {
   targetProduct = product;
+  targetModel = config;
 }
 
 /**
@@ -135,22 +137,30 @@ function main() {
         availableProducts = storedProducts.productsWithConfiguration;
       }
 
-      // Get synced selected product
-      chrome.storage.sync.get("selected", function(selectedProduct) {
-        if (selectedProduct.selected) {
-          setTargetProduct(selectedProduct.selected);
+      // Get synced selected model
+      chrome.storage.sync.get("model", function(selectedModel) {
+        var model;
+        if (selectedModel.model && selectedModel.model !== "null") {
+          model = selectedModel.model;
         }
 
-        // Get synced refresh interval
-        chrome.storage.sync.get("interval", function(interval) {
-          if (interval.interval) {
-            refreshInterval = interval.interval;
-          } else {
-            refreshInterval = 30000;
+        // Get synced selected product
+        chrome.storage.sync.get("selected", function(selectedProduct) {
+          if (selectedProduct.selected) {
+            setTargetProduct(selectedProduct.selected, model);
           }
 
-          // Start the refresh loop
-          restartLoop(targetProduct);
+          // Get synced refresh interval
+          chrome.storage.sync.get("interval", function(interval) {
+            if (interval.interval) {
+              refreshInterval = interval.interval;
+            } else {
+              refreshInterval = 30000;
+            }
+
+            // Start the refresh loop
+            restartLoop(targetProduct);
+          });
         });
       });
     });

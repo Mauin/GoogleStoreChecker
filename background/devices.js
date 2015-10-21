@@ -41,11 +41,11 @@ function findConfigurations(product, callback) {
     // Check for the device name again, just to update in case the category overview name was funky
     var produtName = dom.find('div[data-tracking-name]')[0].dataset.trackingName;
 
-
     var configurations = new Array();
     for (var i = 0; i < configs.length; i++) {
       var config = configs[i];
       var price = config.dataset.price;
+      var available = config.dataset.available;
 
       var productConfigurationsData = new Array();
       var configDataPoints = config.childNodes;
@@ -54,7 +54,7 @@ function findConfigurations(product, callback) {
         productConfigurationsData.push(createConfigurationData(j, name));
       }
 
-      configurations.push(createConfiguration(price, productConfigurationsData));
+      configurations.push(createConfiguration(price, available, productConfigurationsData));
     }
 
     // Set data to product

@@ -10,9 +10,14 @@ function syncInterval(interval) {
   });
 }
 
-function syncSelectedProduct(product) {
+function syncSelectedProduct(product, config) {
+  if (config === undefined) {
+    config = "null";
+  }
+
   chrome.storage.sync.set({
-    selected: product
+    selected: product,
+    model: config
   });
 }
 
