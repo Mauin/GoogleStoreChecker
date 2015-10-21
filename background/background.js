@@ -139,7 +139,6 @@ function main() {
 
       // Get synced selected product
       chrome.storage.sync.get("selected", function(selectedProduct) {
-        var targetProduct;
         if (selectedProduct.selected) {
           setTargetProduct(selectedProduct.selected);
         }
@@ -153,6 +152,7 @@ function main() {
           }
 
           // Start the refresh loop
+          console.log("start loop with " + targetProduct);
           restartLoop(targetProduct);
         });
       });
