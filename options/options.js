@@ -74,7 +74,7 @@ function generateForm(products, selectedProductName) {
     box.appendChild(label);
 
     // Append Configuration Spinner
-    if (currentProduct.configurations.length > 0) {
+    if (currentProduct.configurations.length > 1) {
       console.log(currentProduct.configurations);
       var select = document.createElement('select');
       for (var i = 0; i < currentProduct.configurations.length; i++) {
