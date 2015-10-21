@@ -18,6 +18,6 @@ function syncSelectedProduct(product) {
 
 function syncProducts(products) {
   chrome.storage.sync.set({
-    products: products
+    productsWithConfiguration: products
   });
 }

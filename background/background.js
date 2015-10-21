@@ -50,7 +50,7 @@ function setBadge(count) {
 function checkForDeviceUpdateIfNecessary(callback) {
   var now = Date.now();
 
-  if (true || availableProducts === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
+  if (availableProducts === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
     lastProductSyncTimestamp = Date.now();
     syncTimestamp(lastProductSyncTimestamp);
 
@@ -97,8 +97,6 @@ function restartLoop(product) {
   checkForDeviceUpdateIfNecessary(function(products) {
     availableProducts = products;
 
-    console.log(product + " " + targetProduct);
-
     if (product === undefined) {
       showOptionsDialog();
       return;
@@ -132,9 +130,9 @@ function main() {
     }
 
     // Get synced products
-    chrome.storage.sync.get("products", function(storedProducts) {
-      if (storedProducts.products != undefined && storedProducts.products.length > 0) {
-        availableProducts = storedProducts.products;
+    chrome.storage.sync.get("productsWithConfiguration", function(storedProducts) {
+      if (storedProducts.productsWithConfiguration != undefined && storedProducts.productsWithConfiguration.length > 0) {
+        availableProducts = storedProducts.productsWithConfiguration;
       }
 
       // Get synced selected product
@@ -152,7 +150,6 @@ function main() {
           }
 
           // Start the refresh loop
-          console.log("start loop with " + targetProduct);
           restartLoop(targetProduct);
         });
       });

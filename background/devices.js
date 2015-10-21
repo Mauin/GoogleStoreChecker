@@ -2,6 +2,8 @@ function getDevices(callback) {
   var products = new Array();
   var remaining = 0;
 
+  console.log("Refreshing devices list");
+
   findCategories(function(foundProducts, categories) {
     addAllProducts(products, foundProducts);
 
@@ -23,7 +25,6 @@ function findProductConfigurations(products, callback) {
   for (var i = 0; i < products.length; i++) {
     var product = products[i]
     findConfigurations(product, function(currentProduct, configurations) {
-      console.log(currentProduct.name + " " + configurations);
       currentProduct.configurations = configurations;
 
       remaining--;
