@@ -24,9 +24,7 @@ function findProductConfigurations(products, callback) {
   var remaining = products.length;
   for (var i = 0; i < products.length; i++) {
     var product = products[i]
-    findConfigurations(product, function(currentProduct, configurations) {
-      currentProduct.configurations = configurations;
-
+    findConfigurations(product, function(configurations) {
       remaining--;
       if (remaining == 0) {
         callback(products);
@@ -39,6 +37,10 @@ function findConfigurations(product, callback) {
   loadUrl(product.url, function(response) {
     var dom = jQuery('<div/>').html(response).contents();
     var configs = dom.find('div[data-available]');
+
+    // Check for the device name again, just to update in case the category overview name was funky
+    var produtName = dom.find('div[data-tracking-name]')[0].dataset.trackingName;
+
 
     var configurations = new Array();
     for (var i = 0; i < configs.length; i++) {
@@ -55,7 +57,11 @@ function findConfigurations(product, callback) {
       configurations.push(createConfiguration(price, productConfigurationsData));
     }
 
-    callback(product, configurations);
+    // Set data to product
+    product.name = produtName;
+    product.configurations = configurations;
+
+    callback(configurations);
   });
 }
 
