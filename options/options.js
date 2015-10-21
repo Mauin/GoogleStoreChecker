@@ -77,12 +77,11 @@ function generateForm(products, selectedProductName) {
     if (currentProduct.configurations.length > 1) {
       console.log(currentProduct.configurations);
       var select = document.createElement('select');
+      select.appendChild(createOption(-1, "Check for all"));
+
       for (var i = 0; i < currentProduct.configurations.length; i++) {
         var config = currentProduct.configurations[i];
-        var option = document.createElement('option');
-        option.value = i;
-        option.innerHTML = createConfigString(config);
-        select.appendChild(option);
+        select.appendChild(createOption(i, createConfigString(config)));
       }
       box.appendChild(select);
     }
@@ -90,6 +89,13 @@ function generateForm(products, selectedProductName) {
     box.appendChild(document.createElement("br"));
   }
   document.getElementById("saveButton").addEventListener('click', save);
+}
+
+function createOption(id, name) {
+  var option = document.createElement('option');
+  option.value = id;
+  option.innerHTML = name;
+  return option;
 }
 
 function createConfigString(config) {
