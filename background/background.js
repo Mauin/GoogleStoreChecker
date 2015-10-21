@@ -97,17 +97,23 @@ function restartLoop(product) {
   checkForDeviceUpdateIfNecessary(function(products) {
     availableProducts = products;
 
+    console.log(product + " " + targetProduct);
+
     if (product === undefined) {
       showOptionsDialog();
       return;
     }
 
-    targetProduct = product;
+    setTargetProduct(product);
     showStartNotification(product);
 
     refreshContent(product);
     loop(refreshInterval, product);
   });
+}
+
+function setTargetProduct(product) {
+  targetProduct = product;
 }
 
 /**
@@ -135,7 +141,7 @@ function main() {
       chrome.storage.sync.get("selected", function(selectedProduct) {
         var targetProduct;
         if (selectedProduct.selected) {
-          targetProduct = selectedProduct.selected;
+          setTargetProduct(selectedProduct.selected);
         }
 
         // Get synced refresh interval

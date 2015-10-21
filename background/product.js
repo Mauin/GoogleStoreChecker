@@ -5,6 +5,7 @@ function Product() {
   this.name = "";
   this.productUrl = "";
   this.url = "";
+  this.configurations = ""; // Configuration array
 }
 
 /**
@@ -19,4 +20,28 @@ function createProduct(name, path) {
   product.productUrl = path;
   product.url = storeUrl + path;
   return product;
+}
+
+function createConfiguration(price, data) {
+  var configuration = new Configuration();
+  configuration.price = price;
+  configuration.data = data;
+  return configuration;
+}
+
+function Configuration() {
+  this.price = "";
+  this.data = new Array(); // ConfigurationData array
+}
+
+function createConfigurationData(id, name) {
+  var configurationData = new ConfigurationData();
+  configurationData.id = id;
+  configurationData.name = name;
+  return configurationData;
+}
+
+function ConfigurationData() {
+  this.id = "";
+  this.name = "";
 }

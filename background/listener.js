@@ -30,6 +30,7 @@ function addMessageListener() {
     if (request.product) {
       // Product selection broadcast
       syncSelectedProduct(request.product);
+      setTargetProduct(request.product);
       restartLoop(request.product);
     }
   });

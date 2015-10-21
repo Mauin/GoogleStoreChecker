@@ -8,11 +8,53 @@ function getDevices(callback) {
     findProductInCategories(categories, function(foundProducts) {
       addAllProducts(products, foundProducts);
 
-      syncProducts(products);
-      callback(products);
+      findProductConfigurations(products, function(productsWithConfiguration) {
+        syncProducts(productsWithConfiguration);
+        callback(productsWithConfiguration);
+      });
 
     });
 
+  });
+}
+
+function findProductConfigurations(products, callback) {
+  var remaining = products.length;
+  for (var i = 0; i < products.length; i++) {
+    var product = products[i]
+    findConfigurations(product, function(currentProduct, configurations) {
+      console.log(currentProduct.name + " " + configurations);
+      currentProduct.configurations = configurations;
+
+      remaining--;
+      if (remaining == 0) {
+        callback(products);
+      }
+    });
+  }
+}
+
+function findConfigurations(product, callback) {
+  loadUrl(product.url, function(response) {
+    var dom = jQuery('<div/>').html(response).contents();
+    var configs = dom.find('div[data-available]');
+
+    var configurations = new Array();
+    for (var i = 0; i < configs.length; i++) {
+      var config = configs[i];
+      var price = config.dataset.price;
+
+      var productConfigurationsData = new Array();
+      var configDataPoints = config.childNodes;
+      for (var j = 0; j < configDataPoints.length; j++) {
+        var name = configDataPoints[j].dataset.variationName;
+        productConfigurationsData.push(createConfigurationData(j, name));
+      }
+
+      configurations.push(createConfiguration(price, productConfigurationsData));
+    }
+
+    callback(product, configurations);
   });
 }
 
