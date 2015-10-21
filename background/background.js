@@ -159,7 +159,7 @@ function main() {
             }
 
             // Start the refresh loop
-            restartLoop(targetProduct);
+            restartLoop(targetProduct, targetModel);
           });
         });
       });

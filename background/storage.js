@@ -9,30 +9,16 @@ function processResponse(product, config, response, callback) {
   var available = checkAvailability(models, config);
 
   var wanted = (config === undefined) ? models.length : 1;
-  var name = (config === undefined) ? product.name : getModelName(product.name, config);
+  var name = (config === undefined) ? product.name : getProductName(product, config);
 
   console.log(name + " - " + available + " out of " + wanted + " models available");
 
-  notificationHandling(product, cached, available);
+  notificationHandling(product, config, cached, available);
 
   // Store new value
   cached = available;
 
   callback(available);
-}
-
-function getModelName(name, config) {
-
-  return name + " " + createConfigString(config);
-}
-
-function createConfigString(config) {
-  var string = "";
-
-  for (var i = 0; i < config.data.length; i++) {
-    string += config.data[i].name + " ";
-  }
-  return string;
 }
 
 function getModelsFromResponse(response) {

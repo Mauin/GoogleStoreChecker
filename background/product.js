@@ -69,3 +69,24 @@ function ConfigurationData() {
   this.id = "";
   this.name = "";
 }
+
+function getProductName(product, config) {
+  if (config === undefined) {
+    return product.name;
+  }
+
+  return product.name + " " + createConfigString(config);
+}
+
+function createConfigString(config) {
+  var string = "";
+
+  for (var i = 0; i < config.data.length; i++) {
+    string += config.data[i].name;
+
+    if (i < config.data.length - 1) {
+      string += " ";
+    }
+  }
+  return string;
+}
