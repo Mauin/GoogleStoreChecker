@@ -2,7 +2,9 @@
 function loadUrl(url, callback) {
   var x = new XMLHttpRequest();
   x.onload = function() {
-    callback(x.responseText);
+    var response = x.responseText;
+    var dom = jQuery('<div/>').html(response).contents();
+    callback(dom);
   };
 
   x.open('GET', url);

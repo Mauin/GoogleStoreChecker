@@ -23,6 +23,7 @@
       "background/constants.js",
       "background/product.js",
       "background/http.js",
+      "background/parsing.js",
       "background/sync.js",
       "background/notification.js",
       "background/listener.js",

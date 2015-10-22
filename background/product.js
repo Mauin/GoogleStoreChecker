@@ -22,6 +22,10 @@ function createProduct(name, path) {
   return product;
 }
 
+function equalsProduct(l, r) {
+  return (l.name === r.name || l.url === r.url) 
+}
+
 function createConfiguration(price, available, data) {
   var configuration = new Configuration();
   configuration.price = price;

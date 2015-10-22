@@ -66,8 +66,8 @@ function checkForDeviceUpdateIfNecessary(callback) {
  * @param  {Product} product the selected product to refresh the data for
  */
 function refreshContent(product, config) {
-  loadUrl(product.url, function(response) {
-    processResponse(product, config, response, setBadge);
+  loadUrl(product.url, function(dom) {
+    processResponse(product, config, dom, setBadge);
   });
 }
 
@@ -125,45 +125,13 @@ function setTargetProduct(product, config) {
 function main() {
   addListeners();
 
-  // Get synced device refresh timestamp
-  chrome.storage.sync.get("syncTimestamp", function(timestamp) {
-    if (timestamp.syncTimestamp != undefined) {
-      lastProductSyncTimestamp = timestamp.syncTimestamp;
-    }
+  getSyncedData(function(timestamp, products, selectedProduct, selectedModel, interval) {
+    lastProductSyncTimestamp = timestamp;
+    availableProducts = products;
+    refreshInterval = interval;
 
-    // Get synced products
-    chrome.storage.sync.get("productsWithConfiguration", function(storedProducts) {
-      if (storedProducts.productsWithConfiguration != undefined && storedProducts.productsWithConfiguration.length > 0) {
-        availableProducts = storedProducts.productsWithConfiguration;
-      }
-
-      // Get synced selected model
-      chrome.storage.sync.get("model", function(selectedModel) {
-        var model;
-        if (selectedModel.model && selectedModel.model !== "null") {
-          model = selectedModel.model;
-        }
-
-        // Get synced selected product
-        chrome.storage.sync.get("selected", function(selectedProduct) {
-          if (selectedProduct.selected) {
-            setTargetProduct(selectedProduct.selected, model);
-          }
-
-          // Get synced refresh interval
-          chrome.storage.sync.get("interval", function(interval) {
-            if (interval.interval) {
-              refreshInterval = interval.interval;
-            } else {
-              refreshInterval = 30000;
-            }
-
-            // Start the refresh loop
-            restartLoop(targetProduct, targetModel);
-          });
-        });
-      });
-    });
+    setTargetProduct(selectedProduct, selectedModel);
+    restartLoop(selectedProduct, selectedModel);
   });
 }
 
