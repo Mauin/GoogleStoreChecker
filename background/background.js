@@ -51,7 +51,7 @@ function setBadge(count) {
 function checkForDeviceUpdateIfNecessary(callback) {
   var now = Date.now();
 
-  if (true || availableProducts === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
+  if (availableProducts === undefined || now - lastProductSyncTimestamp > productRefreshInterval) {
     lastProductSyncTimestamp = Date.now();
     syncTimestamp(lastProductSyncTimestamp);
 
