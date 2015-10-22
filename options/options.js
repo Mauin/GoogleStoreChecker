@@ -95,7 +95,7 @@ function generateForm(products, selectedProductName, selectedConfig) {
     // Append Configuration Spinner
     if (currentProduct.configurations.length > 1) {
       var select = document.createElement('select');
-      select.setAttribute("align","right");
+      select.setAttribute("style", "float:right");
       select.name = i;
       select.appendChild(createOption(-1, "Check for all"));
 
