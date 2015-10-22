@@ -50,6 +50,19 @@ function save() {
   }, function(response) {});
 }
 
+function change() {
+  var selected = document.querySelector('input[name="product"]:checked').value;
+  var allSelects = document.querySelectorAll('select');
+  for (var i = 0; i < allSelects.length; i++) {
+    allSelects[i].style.display = "none";
+  }
+
+  var select = document.querySelector("select[name=\"" + selected + "\"]");
+
+  console.log("change");
+  select.style.display = "block";
+}
+
 function findNameInProducts(products, selected) {
   for (var product in products) {
     var currentProduct = products[product];
@@ -66,6 +79,7 @@ function setIntervalTextBox(interval) {
 }
 
 function generateForm(products, selectedProductName, selectedConfig) {
+  var selected = 0;
   var box = document.getElementById('productBox');
 
   for (var i = 0; i < products.length; i++) {
@@ -77,6 +91,7 @@ function generateForm(products, selectedProductName, selectedConfig) {
     checkbox.value = i;
     if (selectedProductName === currentProduct.name) {
       checkbox.checked = true;
+      selected = 1;
     }
     box.appendChild(checkbox);
 
@@ -92,10 +107,10 @@ function generateForm(products, selectedProductName, selectedConfig) {
       selectedConfigString = createConfigString(selectedConfig);
     }
 
+
     // Append Configuration Spinner
     if (currentProduct.configurations.length > 1) {
       var select = document.createElement('select');
-      select.setAttribute("style", "float:right");
       select.name = i;
       select.appendChild(createOption(-1, "Check for all"));
 
@@ -109,11 +124,17 @@ function generateForm(products, selectedProductName, selectedConfig) {
         }
       }
       box.appendChild(select);
+
+      select.style.display = 'none';
     }
 
     box.appendChild(document.createElement("br"));
   }
   document.getElementById("saveButton").addEventListener('click', save);
+  document.getElementById("form").addEventListener('change', change);
+  if (selected > 0) {
+    change();
+  }
 }
 
 function createOption(id, name) {
