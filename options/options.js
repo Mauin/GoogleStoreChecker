@@ -32,7 +32,10 @@ function save() {
   var selectedInterval = document.getElementById('interval').value * 1000;
 
   var selectedSelect = document.querySelector("select[name=\"" + selected + "\"]");
-  var config = selectedSelect.options[selectedSelect.selectedIndex].value;
+  var config = -1;
+  if (!(selectedSelect === null)) {
+      config = selectedSelect.options[selectedSelect.selectedIndex].value;
+  }
 
   var selectedConfig;
   if (config >= 0) {
@@ -58,8 +61,10 @@ function change() {
   }
 
   var select = document.querySelector("select[name=\"" + selected + "\"]");
+  if (select === null) {
+    return;
+  }
 
-  console.log("change");
   select.style.display = "block";
 }
 
