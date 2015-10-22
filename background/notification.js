@@ -1,40 +1,38 @@
 var notificationId = 0;
 
-function notificationHandling(product, last, now) {
-  // Nothing to do here
-  if (last == now) {
-    return;
-  }
+function notificationHandling(product, config, last, now) {
+  var name = getProductName(product, config);
 
   if (now > last && last == 0) {
-    showInStockNotification(product);
+    showInStockNotification(name);
   } else if (now > last && last > 0) {
-    showIncreaseNotification(product);
+    showIncreaseNotification(name);
   } else if (now < last && now > 0) {
-    showDecreaseNotification(product);
+    showDecreaseNotification(name);
   } else if (now < last && now == 0) {
-    showOutOfStockNotification(product);
+    showOutOfStockNotification(name);
   }
 }
 
-function showStartNotification(product) {
-  showNotification("Looking for the " + product.name + " for you", "Checking for changes every " + refreshInterval/1000 + " seconds");
+function showStartNotification(product, config) {
+  var name = getProductName(product, config);
+  showNotification("Looking for the " + name + " for you", "Checking for changes every " + refreshInterval/1000 + " seconds");
 }
 
-function showInStockNotification(product) {
-  showNotification(product.name + " is in Stock!", "Click here to see the Google Store product page");
+function showInStockNotification(name) {
+  showNotification(name + " is in Stock!", "Click here to see the Google Store product page");
 }
 
-function showIncreaseNotification(product) {
-  showNotification("More models of the " + product.name + " are in Stock!", "Click here to see the Google Store product page");
+function showIncreaseNotification(name) {
+  showNotification("More models of the " + name + " are in Stock!", "Click here to see the Google Store product page");
 }
 
-function showDecreaseNotification(product) {
-  showNotification("Some models of the " + product.name + " have gone out of Stock!", "Click here to see the Google Store product page");
+function showDecreaseNotification(name) {
+  showNotification("Some models of the " + name + " have gone out of Stock!", "Click here to see the Google Store product page");
 }
 
-function showOutOfStockNotification(product) {
-  showNotification("The " + product.name + " has gone out of Stock!", "Click here to see the Google Store product page");
+function showOutOfStockNotification(name) {
+  showNotification("The " + name + " has gone out of Stock!", "Click here to see the Google Store product page");
 }
 
 function showNotification(title, message) {

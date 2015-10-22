@@ -19,6 +19,15 @@
       margin-top: 10px;
     }
 
+    select {
+      height: 15px;
+      line-height: 15px;
+      right: 0;
+      left: auto;
+      border: none;
+      font-size: 10px;
+    }
+
     #status {
       /* avoid an excessively wide status text */
       white-space: pre;
@@ -34,8 +43,9 @@
   <input id="interval" type="text" name="interval" size="5" maxlength="5">
   <label>seconds</label>
   <small>(minimum: 10s)</small>
-  </br></br>
-  <form>
+  </br>
+  </br>
+  <form id="form">
     <label id="statement">Please select a device:</label>
     <br />
     <div id="productBox">

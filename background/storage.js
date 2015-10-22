@@ -2,14 +2,30 @@ var cached = 0;
 
 function resetCache() {
   cached = 0;
+
+  syncCache(0);
 }
 
-function processResponse(product, response, callback) {
-  var models = getModelsFromResponse(response);
-  var available = checkAvailability(models);
-  console.log(product.name + " - " + available + " out of " + models.length + " models available");
+function setCache(lastAvailable) {
+  cached = lastAvailable;
+}
 
-  notificationHandling(product, cached, available);
+function processResponse(product, config, dom, callback) {
+  var models = parseModels(dom);
+  var available = checkAvailability(models, config);
+
+  var wanted = (config === undefined) ? models.length : 1;
+  var name = (config === undefined) ? product.name : getProductName(product, config);
+
+  console.log(name + " - " + available + " out of " + wanted + " models available");
+
+  // Nothing to do here
+  if (cached == available) {
+    return;
+  }
+
+  notificationHandling(product, config, cached, available);
+  syncCache(available);
 
   // Store new value
   cached = available;
@@ -17,22 +33,16 @@ function processResponse(product, response, callback) {
   callback(available);
 }
 
-function getModelsFromResponse(response) {
-  // Parse DOM
-  var dom = jQuery('<div/>').html(response).contents();
-
-  // Find all 'div's with 'data-available' parameters
-  return dom.find('div[data-available]');
-}
-
-function checkAvailability(models) {
+function checkAvailability(models, config) {
   var available = 0;
-  // Check how many models are available
-  for (i = 0; i < models.length; i++) {
-    var isAvailable = models[i].dataset.available;
-    if (isAvailable === "true") {
+  var checkAll = (config === undefined) || config.model === "null";
+
+  for (var i = 0; i < models.length; i++) {
+    var current = models[i];
+    if ((checkAll || configEquals(current, config)) && current.available === "true") {
       available++;
     }
   }
+
   return available;
 }

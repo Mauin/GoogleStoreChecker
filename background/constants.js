@@ -1,4 +1,5 @@
 var productRefreshInterval = 86400000;
+var defaultTimeout = 30000;
 var colorGreen = "#00C400";
 var colorRed = "#F20000";
 
