@@ -21,6 +21,7 @@ function processResponse(product, config, dom, callback) {
 
   // Nothing to do here
   if (cached == available) {
+    callback(available);
     return;
   }
 
