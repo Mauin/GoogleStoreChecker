@@ -2,6 +2,12 @@ var cached = 0;
 
 function resetCache() {
   cached = 0;
+
+  syncCache(0);
+}
+
+function setCache(lastAvailable) {
+  cached = lastAvailable;
 }
 
 function processResponse(product, config, dom, callback) {
@@ -13,7 +19,13 @@ function processResponse(product, config, dom, callback) {
 
   console.log(name + " - " + available + " out of " + wanted + " models available");
 
+  // Nothing to do here
+  if (cached == available) {
+    return;
+  }
+
   notificationHandling(product, config, cached, available);
+  syncCache(available);
 
   // Store new value
   cached = available;

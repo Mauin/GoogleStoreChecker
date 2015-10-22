@@ -1,11 +1,6 @@
 var notificationId = 0;
 
 function notificationHandling(product, config, last, now) {
-  // Nothing to do here
-  if (last == now) {
-    return;
-  }
-
   var name = getProductName(product, config);
 
   if (now > last && last == 0) {

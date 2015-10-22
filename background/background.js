@@ -125,11 +125,12 @@ function setTargetProduct(product, config) {
 function main() {
   addListeners();
 
-  getSyncedData(function(timestamp, products, selectedProduct, selectedModel, interval) {
+  getSyncedData(function(timestamp, products, selectedProduct, selectedModel, interval, lastAvailable) {
     lastProductSyncTimestamp = timestamp;
     availableProducts = products;
     refreshInterval = interval;
 
+    setCache(lastAvailable);
     setTargetProduct(selectedProduct, selectedModel);
     restartLoop(selectedProduct, selectedModel);
   });
