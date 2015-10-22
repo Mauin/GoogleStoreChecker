@@ -3,7 +3,7 @@
 
   "name": "Google Store Availablility Checker",
   "description": "Extension that automatically refreshes a Google Store store pages in the background to notiy you about changes. Saves your F5 key while waiting for new devices!",
-  "version": "1.2.0",
+  "version": "1.2.1",
 
   "icons": {
     "16": "res/icon_16.png",
